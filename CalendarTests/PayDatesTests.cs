@@ -1,17 +1,20 @@
 using System;
-using System.Collections.Generic;
 using Calendar.Enums;
 using Calendar.Impl;
+using Calendar.Interface;
+using Moq;
 using Xunit;
 
 namespace CalendarTests
 {
     public class PayDatesTests
     {
-        private readonly DatesService _service;
+        private readonly PayDatesService _service;
+        
         public PayDatesTests()
         {
-            _service = new DatesService();
+            var adjustDatesService = new Mock<IAdjustDatesService>();
+            _service = new PayDatesService(adjustDatesService.Object);
         }
 
         [Fact]
@@ -32,7 +35,7 @@ namespace CalendarTests
                 "08/31/2022",
                 "09/30/2022"
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -53,7 +56,7 @@ namespace CalendarTests
                 "08/01/2022",
                 "09/01/2022"
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -70,7 +73,7 @@ namespace CalendarTests
                 "08/28/2023", "09/28/2023", "10/28/2023", "11/28/2023", "12/28/2023", "01/28/2024", "02/28/2024", "03/28/2024", "04/28/2024",
                 "05/28/2024", "06/28/2024", "07/28/2024", "08/28/2024", "09/28/2024"
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
         
         [Fact]
@@ -87,7 +90,7 @@ namespace CalendarTests
                 "08/29/2023", "09/29/2023", "10/29/2023", "11/29/2023", "12/29/2023", "01/29/2024", "02/29/2024", "03/29/2024", "04/29/2024",
                 "05/29/2024", "06/29/2024", "07/29/2024", "08/29/2024", "09/29/2024"
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -104,7 +107,7 @@ namespace CalendarTests
                 "08/30/2023", "09/30/2023", "10/30/2023", "11/30/2023", "12/30/2023", "01/30/2024", "02/29/2024", "03/30/2024", "04/30/2024",
                 "05/30/2024", "06/30/2024", "07/30/2024", "08/30/2024", "09/30/2024"
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -121,15 +124,7 @@ namespace CalendarTests
                 "08/31/2023", "09/30/2023", "10/31/2023", "11/30/2023", "12/31/2023", "01/31/2024", "02/29/2024", "03/31/2024", "04/30/2024",
                 "05/31/2024", "06/30/2024", "07/31/2024", "08/31/2024", "09/30/2024"
             };
-            CheckDates(expected, result);
-        }
-
-        [Fact]
-        public void Mod_Test()
-        {
-            var value = Convert.ToDecimal((1 / 2.0)) + 0.1M;
-            Assert.Equal(0.6M, value);
-            Assert.Equal(1, Convert.ToInt16(decimal.Round(value, MidpointRounding.AwayFromZero)));
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -153,7 +148,7 @@ namespace CalendarTests
                 "05/15/2024", "05/31/2024", "06/15/2024", "06/30/2024", "07/15/2024", "07/31/2024", "08/15/2024", "08/31/2024", "09/15/2024",
                 "09/30/2024", "10/15/2024"
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -177,7 +172,7 @@ namespace CalendarTests
                 "05/15/2024", "05/31/2024", "06/15/2024", "06/30/2024", "07/15/2024", "07/31/2024", "08/15/2024", "08/31/2024", "09/15/2024",
                 "09/30/2024", "10/15/2024"
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -201,7 +196,7 @@ namespace CalendarTests
                 "05/15/2024", "05/31/2024", "06/15/2024", "06/30/2024", "07/15/2024", "07/31/2024", "08/15/2024", "08/31/2024", "09/15/2024",
                 "09/30/2024", "10/15/2024",
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
@@ -225,44 +220,28 @@ namespace CalendarTests
                 "05/15/2024", "05/31/2024", "06/15/2024", "06/30/2024", "07/15/2024", "07/31/2024", "08/15/2024", "08/31/2024", "09/15/2024",
                 "09/30/2024", "10/15/2024",
             };
-            CheckDates(expected, result);
+            Helper.CheckDates(expected, result);
         }
 
         [Fact]
         public void GetNthPayDateFromStartDate_Test31StartDate()
         {
             var result = _service.GetNthPayDateFromStartDate(PayTypes.Monthly, Convert.ToDateTime("10/31/2021"), 4);
-            CheckDate("02/28/2022", result);
+            Helper.CheckDate("02/28/2022", result);
         }
 
         [Fact]
         public void GetNthPayDateFromStartDate_Test10thDateFromStartDate()
         {
             var result = _service.GetNthPayDateFromStartDate(PayTypes.Monthly, Convert.ToDateTime("10/31/2021"), 10);
-            CheckDate("08/31/2022", result);
+            Helper.CheckDate("08/31/2022", result);
         }
 
         [Fact]
         public void GetNthPayDateFromStartDate_Test11thDateFromStartDate()
         {
             var result = _service.GetNthPayDateFromStartDate(PayTypes.Monthly, Convert.ToDateTime("10/31/2021"), 11);
-            CheckDate("09/30/2022", result);
-        }
-
-        private static void CheckDates(string[] expected, IReadOnlyCollection<DateTime> actual)
-        {
-            var iterator = 0;
-            Assert.Equal(expected.Length, actual.Count);
-            foreach (var date in actual)
-            {
-                Assert.Equal(expected[iterator], date.ToString("MM/dd/yyyy"));
-                iterator++;
-            }
-        }
-
-        private static void CheckDate(string expected, DateTime actual)
-        {
-            Assert.Equal(expected, actual.ToString("MM/dd/yyyy"));
+            Helper.CheckDate("09/30/2022", result);
         }
     }
 }
